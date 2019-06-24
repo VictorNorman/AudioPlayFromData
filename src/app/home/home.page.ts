@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { FilesystemDirectory, Filesystem } from '@capacitor/core';
+import { FilesystemDirectory, Plugins } from '@capacitor/core';
 import { HttpClient } from '@angular/common/http';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 
+const { Filesystem } = Plugins;
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -22,8 +23,9 @@ export class HomePage {
     this.http.get('assets/1.mp3', {
       responseType: 'arraybuffer'
     }).subscribe(data => {
+      var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(data)));
       Filesystem.writeFile({
-        data: data as unknown as string,
+        data: base64String,
         path: 'EN-1.mp3',
         directory: FilesystemDirectory.Data,
       }).then((result) => {
