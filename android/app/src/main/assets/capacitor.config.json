@@ -1,0 +1,7 @@
+{
+  "appId": "com.norman.playaudio",
+  "appName": "play audio from data",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www"
+}
