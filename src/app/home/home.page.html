@@ -9,6 +9,7 @@
 <ion-content>
 
   <ion-button (click)="copyFile()">Copy file from assets to /Data</ion-button>
+  <br>DataFile: {{datafile}} <br>
   <div *ngIf="datafile !== ''">
     <audio controls>
       <source [src]="datafile">

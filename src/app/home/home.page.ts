@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { FilesystemDirectory, Plugins } from '@capacitor/core';
 import { HttpClient } from '@angular/common/http';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
+import { writeJsonToFile, convertF, writeBlobToFile } from './code';
 
-const { Filesystem } = Plugins;
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -12,36 +11,57 @@ const { Filesystem } = Plugins;
 export class HomePage {
 
   public datafile = '';
-  private win: any = window;
 
   constructor(
     private http: HttpClient,
     private webView: WebView,
-  ) {}
+  ) { }
 
-  copyFile() {
-    this.http.get('assets/1.mp3', {
-      responseType: 'arraybuffer'
-    }).subscribe(data => {
-      var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(data)));
-      Filesystem.writeFile({
-        data: base64String,
-        path: 'EN-1.mp3',
-        directory: FilesystemDirectory.Data,
-      }).then((result) => {
-        Filesystem.getUri({
-          directory: FilesystemDirectory.Data,
-          path: 'EN-1.mp3',
-        }).then((result2) => {
-          const path = result2.uri;
-          console.log('😁 result2.uri is', path);
+  async copyFile() {
 
-          this.datafile = this.webView.convertFileSrc(path);
+    for (let i = 1; i <= 5; i++) {
+      console.log('calling getAndWrite on ', i);
+      await this.getAndWrite(i);
+      console.log('done calling getAndWrite on ', i);
+    }
 
-          // this.datafile = 'assets/1.mp3';
-          console.log('😔 this.datafile is ', this.datafile);
-        });
-      });
+    // this.http.get('assets/languages.json').subscribe(data => {
+    //   writeJsonToFile('languages.json', JSON.stringify(data));
+    // });
+
+    this.datafile = await convertF(this.webView);
+
+    console.log('convertFileSrc of 1.mp3 =', this.datafile);
+
+
+    // .then((result) => {
+    //   Filesystem.getUri({
+    //     directory: FilesystemDirectory.Data,
+    //     path: 'EN-1.mp3',
+    //   }).then((result2) => {
+    //     const path = result2.uri;
+    //     console.log('😁 result2.uri is', path);
+
+    //     this.datafile = this.webView.convertFileSrc(path);
+
+    //     // this.datafile = 'assets/1.mp3';
+    //     console.log('😔 this.datafile is ', this.datafile);
+    //   });
+    // });
+  }
+
+  private getAndWrite(i) {
+    return new Promise(resolve => {
+      this.http.get(`assets/${i}.mp3`, {
+        responseType: 'blob'
+      }).subscribe(async data => {
+        console.log('i = ', i);
+        console.log('calling writeArrayBufferToFile', ` EN-${i}.mp3`);
+        await writeBlobToFile(`EN-${i}.mp3`, data);
+        console.log('done calling writeArrayBufferToFile', ` EN-${i}.mp3`);
+        resolve();
+      },
+        (err) => console.log('subscribe yields error', err));
     });
   }
 
